@@ -1,0 +1,7 @@
+__pycache__/
+.venv/
+venv/
+static/
+grammar_bert_model/
+results/
+.env
