@@ -1,11 +1,23 @@
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
+from starlette.middleware.cors import CORSMiddleware
+
 from src.models.testing import get_random_questions, check_answer
 from src.models.bert_use_grammar import predict
 from src.models.translator import translate
+from src.models.get_words import get_words_by_level
+
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8501", "http://127.0.0.1:8501"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 #Testing/Рандомно выбирает 30 вопросов(get_random_questions) и проверяет(check_answer)
 class AnswerRequest(BaseModel):
@@ -40,6 +52,20 @@ def translate_text(data: TranslateText):
     return {
         "original_text": data.text,
         "translated_text": result
+    }
+
+class GetWords(BaseModel):
+    cefr: str
+@app.post("/получить-слова")
+def get_words(cefr: GetWords):
+    result = get_words_by_level(cefr.cefr)
+    if "error" in result:
+        return result
+    return {
+        "cefr_level": cefr.cefr,
+        "word_count": len(result["original_words"]),
+        "original_words": result["original_words"],
+        "translations": result["translations"]
     }
 
 if __name__ == "__main__":

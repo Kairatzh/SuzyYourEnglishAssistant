@@ -37,11 +37,12 @@ questions_dict = {q['id']: q for q in all_questions}
 def check_answer(question_id: int, user_answer: str) -> Dict:
     user_answer = user_answer.lower().strip()
     question = questions_dict.get(question_id)
-
     if question:
         correct = question["correct"].lower()
+        is_correct = user_answer == correct
         return {
-            "is_correct": user_answer == correct,
+            "result": "Correct" if is_correct else "Incorrect",
+            "is_correct": is_correct,
             "correct_answer": correct,
             "explanation_ru": question["explanation_ru"]
         }
