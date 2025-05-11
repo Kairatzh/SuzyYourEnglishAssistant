@@ -15,8 +15,8 @@ def predict(text: str):
     with torch.no_grad():
         outputs = model(**inputs)
     predicted_class = torch.argmax(outputs.logits, dim=1).item()
-    if predicted_class == 1: return "С грамматикой все в порядке" #Надо менять описание так ка звучить стремно
-    elif predicted_class == 0: return "Есть ошибки в грамматик.Исправьте"  # Стрем стрем
+    if predicted_class == 1: return True #Надо менять описание так ка звучить стремно
+    elif predicted_class == 0: return False  # Стрем стрем
 
 #Inference
 #Файл для использование моделя BERT который был дообучен на датасете по классификации.

@@ -82,55 +82,5 @@ def train_model():
     model.save_pretrained(MODEL_SAVE_PATH) #Сохраняемм
     tokenizer.save_pretrained(MODEL_SAVE_PATH)
 
-"""
-    Пока что не использую этот способ для чекинга.У меня технические проблемы с ним
-"""
-# class GrammarChecker:
-#     def __init__(self):
-#         self.tokenizer = None
-#         self.model = None
-#         self.initialized = False
-#
-#     def initialize(self):
-#         if not self.initialized:
-#             if not os.path.exists(MODEL_SAVE_PATH):
-#                 raise FileNotFoundError(f"Model not found at {MODEL_SAVE_PATH}. Train model first.")
-#
-#             self.tokenizer = BertTokenizer.from_pretrained(MODEL_SAVE_PATH)
-#             self.model = BertForSequenceClassification.from_pretrained(MODEL_SAVE_PATH)
-#             self.model.to(DEVICE)
-#             self.model.eval()
-#             self.initialized = True
-#
-#
-# _checker = GrammarChecker()
-#
-#
-# def grammar_check_with_bert(text: str) -> str:
-#     try:
-#         if not _checker.initialized:
-#             _checker.initialize()
-#
-#         if not isinstance(text, str) or not text.strip():
-#             return "Invalid input: Empty or non-string text"
-#
-#         inputs = _checker.tokenizer(
-#             text.strip(),
-#             return_tensors="pt",
-#             truncation=True,
-#             padding=True,
-#             max_length=128
-#         ).to(DEVICE)
-#
-#         with torch.no_grad():
-#             outputs = _checker.model(**inputs)
-#
-#         prediction = torch.argmax(outputs.logits, dim=1).item()
-#         return "Correct" if prediction == 1 else "Contains grammar errors"
-#
-#     except Exception as e:
-#         return f"Error during processing: {str(e)}"
-
-
 
 train_model()

@@ -7,7 +7,7 @@ from src.models.testing import get_random_questions, check_answer
 from src.models.bert_use_grammar import predict
 from src.models.translator import translate
 from src.models.get_words import get_words_by_level
-
+from src.models.train_models.grammar_correcter import correct_grammar
 
 app = FastAPI()
 
@@ -37,8 +37,12 @@ class GrammarText(BaseModel):
     text: str
 @app.post("/проверка-грамотности")
 def check_grammar(data: GrammarText):
-    result = predict(data.text)
-    return {"result": result}
+    bert_classification = predict(data.text)
+    if bert_classification == False:
+        grammar_check = correct_grammar(data.text)
+        return {"Original text": data.text, "Corrected text": grammar_check}
+    else: return {"Corrected": "У вас с грамматикой все в порядке"}
+
 
 #Бэкенд для транслейт текста.(английский-русский, русский-английский)
 class TranslateText(BaseModel):
@@ -69,4 +73,4 @@ def get_words(cefr: GetWords):
     }
 
 if __name__ == "__main__":
-    uvicorn.run(app, port=8001, host="127.0.0.1")
+    uvicorn.run(app, port=8002, host="127.0.0.1")
