@@ -1,7 +1,28 @@
+# Python bytecode
 __pycache__/
+*.py[cod]
+
+# Virtual environments
 .venv/
 venv/
-static/
+
+# VSCode / PyCharm / JetBrains
+.idea/
+.vscode/
+
+# Environment variables
+.env
+
+# Model & data artifacts
 grammar_bert_model/
 results/
-.env
+src/data/translated_cefr_dataset.csv
+
+# Static files
+static/
+
+# Telegram bot cache/output
+telegram_bot/
+
+# Other files
+requirements1.txt
