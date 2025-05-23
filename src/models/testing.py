@@ -9,18 +9,18 @@ from typing import List, Dict
     В основном код открывает размешевает и проверяет.
 """
 
-#Загружаем все 150 вопросов из файла test_english.json.Так как повторяющиеся тесты это классика разве нет?
+#Загружаем все 150 вопросов из файла test_english.json.
 try:
     with open('C:/Users/User/Desktop/SuzyAssistantEnglish/src/data/test_data.json', 'r', encoding='utf-8') as f:
         all_questions = json.load(f)
 except FileNotFoundError:
     print("Файл не найден. Проверьте путь.")
-    all_questions = []  # или загрузи дефолтные вопросы
+    all_questions = []
 except json.JSONDecodeError:
     print("Ошибка при парсинге JSON.")
     all_questions = []
 
-#Возвращает случайные 30 вопросов (без ответов).Рандомы сила
+#Возвращает случайные 30 вопросов (без ответов).
 def get_random_questions(n: int = 30) -> List[Dict]:
     selected = random.sample(all_questions, n)
     return [
@@ -32,7 +32,7 @@ def get_random_questions(n: int = 30) -> List[Dict]:
         for q in selected
     ]
 
-#Проверка на ге... короче проверка
+#Проверка
 questions_dict = {q['id']: q for q in all_questions}
 def check_answer(question_id: int, user_answer: str) -> Dict:
     user_answer = user_answer.lower().strip()

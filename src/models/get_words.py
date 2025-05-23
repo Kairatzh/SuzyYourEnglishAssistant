@@ -3,37 +3,38 @@
     Думаю это нормальная количество за день.CEFR датасет был получен из huggingface.И я благодарен создателю этого шедевро
     датасет.
 """
+"""
+Модуль для получения слов для заучивания. Рандомно выбираем и показываем 20 слов.
+Датасет CEFR получен с Hugging Face. Переводы сохраняются в CSV и переиспользуются.
+"""
+
 import pandas as pd
-from src.models.translator import translate
+import os
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_PATH = os.path.join(BASE_DIR, "data", "translated_cefr_dataset.csv")
 
+if not os.path.exists(DATA_PATH):
+    raise FileNotFoundError(f"Файл {DATA_PATH} не найден. Убедись, что ты уже перевёл и сохранил датасет.")
 
-df = pd.read_csv("hf://datasets/Alex123321/english_cefr_dataset/unified_dataset.csv")
-if "Unnamed: 0" in df.columns:
-    df = df.drop(["Unnamed: 0"], axis=1)
+cefr_df = pd.read_csv(DATA_PATH)
+cefr_df["ud_word_level"] = cefr_df["ud_word_level"].str.strip()
 
-# print(df.head())
-# print(df.info())
-# print(df.describe())
-# print(df.shape)
-
-cefr_levels_dataset = df.drop(["ud_word_pos"], axis=1)
-cefr_levels_unique = cefr_levels_dataset["ud_word_level"].unique().tolist()
-
-def get_words_by_level(cefr_level: str, n=20, dataset=cefr_levels_dataset):
-    dataset["ud_word_level"] = dataset["ud_word_level"].str.strip()
-    filtered = dataset[dataset["ud_word_level"] == cefr_level]
+def get_words_by_level(cefr_level: str, n=20, dataset=cefr_df):
+    filtered = dataset[dataset["ud_word_level"].str.upper() == cefr_level.upper()]
     if filtered.empty:
-        return {
-            "error": f"No words found for CEFR level '{cefr_level}'.",
-            # "available_levels": dataset["ud_word_level"].unique().tolist() Включу когда будет нужным в UI
+        return {"error": f"No words found for CEFR level '{cefr_level}'."}
+
+    sampled = filtered.sample(n=min(n, len(filtered)), random_state=1)
+    return [
+        {
+            "english": row.ud_word,
+            "russian": row.translation,
+            "level": row.ud_word_level
         }
-    words = filtered["ud_word"].sample(n=min(n, len(filtered)), random_state=1).tolist()
-    translation = [translate(word, "en_to_ru") for word in words]
-    return {
-        "translations": translation,
-        "original_words": words
-    }
+        for _, row in sampled.iterrows()
+    ]
+
 
 """
     Тут лучше бы с помощью модели транслейт перевести все 20к слов потом создать новую колонку и так работать.
