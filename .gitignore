@@ -17,6 +17,8 @@ venv/
 grammar_bert_model/
 results/
 src/data/translated_cefr_dataset.csv
+ielts_regression_bert
+results_regression
 
 # Static files
 static/
@@ -25,4 +27,4 @@ static/
 telegram_bot/
 
 # Other files
-requirements1.txt
+frontend/requirements1.txt
