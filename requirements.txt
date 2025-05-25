@@ -7,3 +7,4 @@ sentencepiece
 datasets
 pandas
 python-multipart
+streamlit

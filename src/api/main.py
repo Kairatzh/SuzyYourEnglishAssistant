@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from typing import List, Dict, Literal
 
 
@@ -14,6 +15,7 @@ from src.models.bert_use_grammar import predict
 from src.models.translator import translate
 from src.models.get_words import get_words_by_level
 from src.models.train_models.grammar_correcter import correct_grammar
+from src.models.analyze_writing_inference import predict_writing
 from dotenv import load_dotenv
 
 
@@ -58,9 +60,9 @@ class GrammarCorrectRequest(BaseModel):
     text: str # I are human -> I am human
 class WordsRequest(BaseModel):
     level: Literal["A1", "A2", "B1", "B2", "C1", "C2"]
-    count: int = Field(gt=0, le=100)
-
-
+    count: int = Field(gt=0, le=100) #Количество вопросов.
+class WritingAnalyze(BaseModel):
+    text: str #Эссе или текст
 
 """ Получение рандомных 30 вопросов."""
 @app.get("/get_questions", response_model=List[Dict])
@@ -148,6 +150,30 @@ async def get_cefr_words(req: WordsRequest):
         raise HTTPException(status_code=500, detail="Failed to fetch words")
 
 
+""" Проверка writing с помощью BERT.Проверяет и оценивает по шкале IELTS """
+@app.post("/check_writing", response_model=Dict)
+async def check_writing(req: WritingAnalyze):
+    try:
+        start_time = time.time()
+        result = predict_writing(req.text)
+        duration = round(time.time() - start_time, 2)
+
+        logger.info("✅ Writing checked: %s... | Score: %.1f | Time: %.2fs",
+                    req.text[:50], result["rounded_score"], duration)
+
+        return {
+            "text": req.text,
+            "Overall": result["rounded_score"],
+            "RawScore": result["raw_score"],
+            "InferenceTime": f"{duration} seconds"
+        }
+
+    except ValueError as ve:
+        logger.warning("⚠️ Validation error: %s", str(ve))
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error("❌ Error checking writing: %s", str(e))
+        raise HTTPException(status_code=500, detail="Failed to check writing")
 
 
 """ Можно запустить с помощью и run и терминала (написав: uvicorn run main:app).Но для меня удобнее с помощбю run"""
